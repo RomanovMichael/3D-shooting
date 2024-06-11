@@ -1,12 +1,18 @@
+/* eslint-disable */
+import {Sky} from '@react-three/drei'
+import {Ground} from './Ground.jsx'
+
 export const App = () => {
-  // const [count, setCount] = useState(0)
 
   return (
     <>
-    <p>shooting</p>
+      <Sky sunPosition={[100, 20, 100]} />
+      <ambientLight intensity={1.5} />
+      <Ground />
     </>
   )
 }
+
 
 
 export default App
