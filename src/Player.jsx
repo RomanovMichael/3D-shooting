@@ -1,7 +1,7 @@
 /* eslint-disable */
 import * as THREE from 'three'
 import * as RAPIER from "@dimforge/rapier3d-compat"
-import {RigidBody, useRapier} from '@react-three/rapier'
+import {CapsuleCollider, RigidBody, useRapier} from '@react-three/rapier'
 import { useRef } from 'react'
 import { usePersonControls } from './hooks'
 import { useFrame } from '@react-three/fiber'
@@ -14,28 +14,29 @@ const sideVector = new THREE.Vector3()
 export const Player = () => {
   const playerRef = useRef()
   const { forward, backward, left, right, jump } = usePersonControls()
-  
   const rapier = useRapier()
 
   useFrame((state) => {
-      if (!playerRef.current) return;
+    if (!playerRef.current) return;
+    // передвижение игрока
+    const velocity = playerRef.current.linvel();
+    frontVector.set(0, 0, backward - forward);
+    sideVector.set(left - right, 0, 0);
+    direction.subVectors(frontVector, sideVector).normalize().multiplyScalar(MOVE_SPEED).applyEuler(state.camera.rotation)
 
-      // передвижение игрока
-      const velocity = playerRef.current.linvel();
+    playerRef.current.wakeUp();
+    playerRef.current.setLinvel({ x: direction.x, y: velocity.y, z: direction.z })
 
-      frontVector.set(0, 0, backward - forward);
-      sideVector.set(left - right, 0, 0);
-      direction.subVectors(frontVector, sideVector).normalize().multiplyScalar(MOVE_SPEED);
+    // прыжки
+    const world = rapier.world
+    const ray = world.castRay(new RAPIER.Ray(playerRef.current.translation(), { x: 0, y: -1, z: 0 }))
+    const grounded = ray && ray.collider && Math.abs(ray.toi) <= 1.5
 
-      playerRef.current.wakeUp();
-      playerRef.current.setLinvel({ x: direction.x, y: velocity.y, z: direction.z })
+    if (jump && grounded) doJump()
 
-      // прыжки
-      const world = rapier.world
-      const ray = world.castRay(new RAPIER.Ray(playerRef.current.translation(), { x: 0, y: -1, z: 0 }))
-      const grounded = ray && ray.collider && Math.abs(ray.toi) <= 1
-
-      if (jump && grounded) doJump()
+    // движение камеры
+    const { x, y, z } = playerRef.current.translation()
+    state.camera.position.set(x, y, z)
   })
 
   const doJump = () => {
@@ -47,6 +48,7 @@ export const Player = () => {
       <RigidBody position={[0, 1, -2]} mass={1} ref={playerRef} lockRotations>
         <mesh>
           <capsuleGeometry args={[0.5, 0.5]} />
+          <CapsuleCollider args={[0.75, 0.5]} />
         </mesh>
       </RigidBody>
     </>

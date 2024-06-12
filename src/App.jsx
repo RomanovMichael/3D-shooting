@@ -1,8 +1,10 @@
 /* eslint-disable */
 import {Sky, PointerLockControls} from '@react-three/drei'
 import {Ground} from './Ground.jsx'
-import {Player} from "./Player.jsx";
-import {Physics, RigidBody} from '@react-three/rapier'
+import {Player} from './Player.jsx'
+import {Physics} from '@react-three/rapier'
+import { Cubes } from './Cubes.jsx'
+import { WeaponModel } from './WeaponModel.jsx'
 
 export const App = () => {
 
@@ -14,16 +16,13 @@ export const App = () => {
       <Physics gravity={[0, -20, 0]}>
         <Ground />
         <Player />
-        <RigidBody>
-          <mesh position={[0, 3, -5]}>
-            <boxGeometry />
-          </mesh>
-        </RigidBody>
+        <Cubes />
       </Physics>
+      <group position={[0, 3,0]}>
+        <WeaponModel/>
+      </group>
     </>
   )
 }
-
-
 
 export default App
