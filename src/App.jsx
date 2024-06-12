@@ -6,6 +6,8 @@ import {Physics} from '@react-three/rapier'
 import { Cubes } from './Cubes.jsx'
 import { WeaponModel } from './WeaponModel.jsx'
 
+const shadowOffset = 50
+
 export const App = () => {
 
   return (
@@ -13,12 +15,22 @@ export const App = () => {
       <PointerLockControls />
       <Sky sunPosition={[100, 20, 100]} />
       <ambientLight intensity={1.5} />
+      <directionalLight
+        castShadow
+        intensity={1.5}
+        shadow-mapSize={4096}
+        shadow-camera-top={shadowOffset}
+        shadow-camera-bottom={-shadowOffset}
+        shadow-camera-left={shadowOffset}
+        shadow-camera-right={-shadowOffset}
+        position={[100, 100, 0]} 
+        />
       <Physics gravity={[0, -20, 0]}>
         <Ground />
         <Player />
         <Cubes />
       </Physics>
-      <group position={[0, 3,0]}>
+      <group position={[3, 1, -2]}>
         <WeaponModel/>
       </group>
     </>
